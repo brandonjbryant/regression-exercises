@@ -134,6 +134,5 @@ titanic_df.csv
 train.xlsx
 untidy-data/
 utilities/
-wrangle.py
 telco_churn.csv
 env.py
