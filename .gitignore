@@ -127,3 +127,12 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+#Regression Ignores
+iris_df.csv
+titanic_df.csv
+train.xlsx
+untidy-data/
+utilities/
+wrangle.py
+env.py
