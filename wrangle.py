@@ -1,30 +1,69 @@
+
+import pandas as pd
 import numpy as np
-
-from env import user, password, host
-from utilities import generate_db_url, generate_df
-
-def get_telco(cached=True):
-    telco_query = """
-    SELECT *
-           FROM customers
-               JOIN contract_types USING(contract_type_id)
-               JOIN internet_service_types USING(internet_service_type_id)
-               JOIN payment_types USING(payment_type_id);
-    """
+from sklearn.model_selection import train_test_split
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+def acquire_telco():
+    '''
+    Grab our data from path and read as csv
+    '''
     
-    return generate_df("telco_churn.csv", telco_query, generate_db_url(user, password, host, "telco_churn"), cached)
-
-def clean_telco(telco_df):
-    clean_df = telco_df.copy()
+    df = pd.read_csv('telco_churn.csv')
+    return(df)
     
-    two_year_customers = clean_df[clean_df.contract_type == "Two year"]
-    two_year_customers = two_year_customers[['customer_id', 'monthly_charges', 'tenure', 'total_charges']]
-    two_year_customers.total_charges = two_year_customers.total_charges.replace(" ", np.nan)
-    two_year_customers = two_year_customers.dropna()
-    two_year_customers.total_charges = two_year_customers.total_charges.astype(float)
+def clean_telco(df):
+    '''
+    Takes in a df of telco_data and cleans the data appropriatly by dropping nulls,
+    removing white space,
+    creates dummy variables for Contract type,
+    converts data to numerical, and bool data types, 
+    and drops columsn that are not needed.
     
-    return two_year_customers
+    
+    return: df, a cleaned pandas data frame.
+    '''
+    
+    # Instead of using dummies to seperate contracts use, 
+    # df[['Contract']].value_counts()
+    # Use a SQL querry
+    
+    df = df
+    df.TotalCharges = df.TotalCharges.replace(r'^\s*$', np.nan, regex = True)
+    df = df.fillna(0)
+    dummy_df = pd.get_dummies(df[["Contract"]], drop_first=True)
+    df = pd.concat([df, dummy_df], axis=1)
+    df['Contract_Two year'] = df['Contract_Two year'].astype(bool)
+    df = df.loc[df['Contract_Two year'], :]
+    df = df.drop(columns = ['gender','SeniorCitizen',
+                            'Partner','Dependents',
+                            'PhoneService','MultipleLines',
+                            'InternetService','OnlineSecurity',
+                            'OnlineBackup','DeviceProtection',
+                            'TechSupport','StreamingTV',
+                            'StreamingMovies','PaperlessBilling',
+                            'PaymentMethod','Contract_One year',
+                            'Contract','Churn', 'Contract_Two year'])
+    df = df.set_index("customerID")         
+    return df
+    
+def split_telco(df):
+    '''
+    Takes in a cleaned df of telco data and splits the data appropriatly into train, validate, and test.
+    '''
+    
+    train_val, test = train_test_split(df, train_size =  0.8, random_state = 123)
+    train, validate = train_test_split(df, train_size =  0.8, random_state = 123)
+    return train, validate, test
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def wrangle_telco():
-    return clean_telco(acquire_telco())
-    
+    '''
+    wrangle_grades will read in our telco data as a pandas dataframe,
+    clean the data,
+    split the data,
+    return: train, validate, test sets of pandas dataframes for tleco data, strat on total charges
+    '''
+    df = clean_telco(acquire_telco())
+    return split_telco(df)
+
+# Use train.index = train.customerID to make index the id and then you can drop the customerId column when running regressions.
