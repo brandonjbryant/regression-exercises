@@ -11,7 +11,7 @@ Name | Description | Type
 :---: | :---: | :---:
 README.md | Repo description + Exercise Steps | Markdown File
 wrangle.py | Exercises for regression : acquire and prep | Python script
-prepare.py \ Regression prep functions | Python script
+prepare.py | Regression prep functions | Python script
 scaling.ipynb | Exercises for scaling | Jupyter notebook
 explore.py | Functions for regression exploration | Python script
 explore_telco.ipynb | Regression exploation exercises | Jupyter notebook
