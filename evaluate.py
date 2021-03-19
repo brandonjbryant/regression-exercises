@@ -1,17 +1,8 @@
+import math
+import sklearn.metrics
 import pandas as pd
-import numpy as np
-
-
-def plot_residuals(actual, predicted):
-    residuals = actual - predicted
-    plt.hlines(0, actual.min(), actual.max(), ls =":")
-    plt.scatter(actual, residuals)
-    plt.ylabel('residuals ($y - \hat{y}$)')
-    plt.xlabel('actual value ($y$)')
-    plt.title('Actual vs Residual')
-    plt.show()
-
-
+import numpy as  np
+import matplotlib.pyplot as plt
 
 def residuals(actual, predicted):
     return actual - predicted
@@ -31,9 +22,6 @@ def ess(actual, predicted):
 
 def tss(actual):
     return ((actual - actual.mean()) ** 2).sum()
-
-
-
 
 def regression_errors(actual, predicted):
     return pd.Series({
@@ -62,3 +50,11 @@ def model_significance(ols_model):
         'r^2 -- variance explained': ols_model.rsquared,
         'p-value -- P(data|model == baseline)': ols_model.f_pvalue,
     }
+def plot_residuals(actual, predicted):
+    residuals = actual - predicted
+    plt.hlines(0, actual.min(), actual.max(), ls=':')
+    plt.scatter(actual, residuals)
+    plt.ylabel('residual ($y - \hat{y}$)')
+    plt.xlabel('actual value ($y$)')
+    plt.title('Actual vs Residual')
+    plt.show()
